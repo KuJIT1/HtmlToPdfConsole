@@ -2,16 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
 
-    internal class ProcessStorage
+    internal class ProcessStorage : IProcessStorate
     {
         private Dictionary<string, ProcessItem> _innerStorage = new Dictionary<string, ProcessItem>();
 
+        /// <summary>
+        /// Сохраянет информацию о Процессе
+        /// </summary>
+        /// <param name="item">Информация о Процессе</param>
+        /// <exception cref="ArgumentException">Если не задан идентификатор Процесса</exception>
         public void SaveProcess(ProcessItem item)
         {
-            _ = item.processId ?? throw new ArgumentException();
-            _innerStorage[item.processId] = item;
+            _innerStorage[item.processId ?? throw new ArgumentException()] = item;
         }
 
         /// <summary>
@@ -29,6 +32,13 @@
 
             return processItem;
         }
+    }
+
+    internal interface IProcessStorate
+    {
+        public void SaveProcess(ProcessItem item);
+
+        public ProcessItem GetProcessById(string processId);
     }
 
     public class ProcessNotFoundException: Exception

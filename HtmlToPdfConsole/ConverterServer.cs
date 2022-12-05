@@ -10,7 +10,7 @@
         /// <summary>
         /// Хранилище файлов
         /// </summary>
-        private FileStorage _fileStorage = new FileStorage();
+        private IFileStorage _fileStorage = new FileStorage();
         private ProcessStorage _processStorage = new ProcessStorage();
         private MessageHab _messageHab = new MessageHab();
 
