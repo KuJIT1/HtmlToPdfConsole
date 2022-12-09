@@ -1,9 +1,12 @@
 ﻿namespace HtmlToPdfConsole
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
+    using System.Threading.Tasks.Dataflow;
 
     public class ConverterServer
     {
@@ -13,6 +16,7 @@
         private IFileStorage _fileStorage = new FileStorage();
         private ProcessStorage _processStorage = new ProcessStorage();
         private MessageHab _messageHab = new MessageHab();
+        private ProcessRunner _processRunner;
 
 
         /// <summary>
@@ -22,6 +26,7 @@
 
         public ConverterServer()
         {
+            _processRunner = new ProcessRunner(_processStorage, _messageHab);
             _messageHab.ProcessFinished += OnProcessFinished;
         }
 
@@ -33,7 +38,8 @@
         public string StartConvert(string htmlFilePath)
         {
             var processItem = this.prepareProcess(htmlFilePath);
-            this.runProcess(processItem);
+            _processRunner.RunProcess(processItem);
+            
             return processItem.processId;
         }
 
@@ -57,25 +63,6 @@
 
             _processStorage.SaveProcess(processItem);
             return processItem;
-        }
-
-        // TODO: Разобраться в жизненном цикле
-        /// <summary>
-        /// Создаёт таск на отправку (синхронную?) события создания процесса, помечает Процесс, как начатый.
-        /// </summary>
-        /// <param name="processItem"></param>
-        /// <returns>Таск</returns>
-        private Task runProcess(ProcessItem processItem)
-        {
-            // TODO: Если процесс не удалось запустить, кто-то должен пробовать запустить его снова
-            return Task.Run(() =>
-            {
-                _messageHab.StartProcess(processItem.htmlFilePath, processItem.processId);
-                processItem.convertStartSended = true;
-                processItem.convertStartSendedTime = DateTime.Now;
-
-                _processStorage.SaveProcess(processItem);
-            });
         }
 
         /// <summary>
@@ -131,6 +118,8 @@
 
             _processStorage.SaveProcess(processItem);
             // TODO: Сообщить хабу, что сообщение обработано
+
+            ProcessFinished(processId);
         }
     }
 
@@ -139,5 +128,64 @@
         public ProcessNotFinishedException(string processId)
             : base($"Процесс с идентификатором \"{processId}\" не завершён")
         { }
+    }
+
+    public class ProcessRunner: IDisposable
+    {
+        private ProcessStorage _processStorage;
+        private MessageHab _messageHab;
+
+        private BufferBlock<ProcessItem> _processItems;
+
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private bool disposedValue;
+
+        public ProcessRunner(ProcessStorage processStorage, MessageHab messageHab)
+        {
+            _processStorage = processStorage;
+            _messageHab = messageHab;
+
+            _ = StartSending();
+        }
+
+        public void RunProcess(ProcessItem item)
+        {
+            _processItems.Post(item);
+        }
+
+        private async Task StartSending()
+        {
+            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                var processItem = await _processItems.ReceiveAsync(_cancellationTokenSource.Token);
+                if (processItem.convertStartSended)
+                {
+                    return;
+                }
+
+                await _messageHab.StartProcessAsync(processItem.htmlFilePath, processItem.processId);
+
+                processItem.convertStartSended = true;
+                processItem.convertStartSendedTime = DateTime.Now;
+
+                await _processStorage.SaveProcessAsync(processItem);
+            }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

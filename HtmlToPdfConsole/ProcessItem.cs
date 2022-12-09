@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class ProcessItem
+    public class ProcessItem
     {
         public string processId;
         public string htmlFilePath;

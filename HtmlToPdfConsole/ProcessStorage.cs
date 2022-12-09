@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
-    internal class ProcessStorage : IProcessStorate
+    public class ProcessStorage : IProcessStorate
     {
         private Dictionary<string, ProcessItem> _innerStorage = new Dictionary<string, ProcessItem>();
 
@@ -32,11 +33,19 @@
 
             return processItem;
         }
+
+        public async Task SaveProcessAsync(ProcessItem item)
+        {
+            _innerStorage[item.processId ?? throw new ArgumentException()] = item;
+            await Task.CompletedTask;
+        }
     }
 
     internal interface IProcessStorate
     {
         public void SaveProcess(ProcessItem item);
+
+        public Task SaveProcessAsync(ProcessItem item);
 
         public ProcessItem GetProcessById(string processId);
     }
