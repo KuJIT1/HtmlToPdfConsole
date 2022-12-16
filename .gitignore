@@ -3,3 +3,8 @@ Converter/bin/
 Converter/obj/
 HtmlToPdfConsole/bin/
 HtmlToPdfConsole/obj/
+WorkerService1/bin/Debug/net6.0/Microsoft.Extensions.Configuration.Abstractions.dll
+WorkerService1/bin/
+WorkerService1/obj/
+EventBusRabbitMQ/obj/
+ConverterWorker/obj/

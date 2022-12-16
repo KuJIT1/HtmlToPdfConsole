@@ -3,9 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlToPdfConsole", "HtmlToPdfConsole\HtmlToPdfConsole.csproj", "{776C0D56-5BD9-43AA-8FB1-E8599C7A23A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtmlToPdfConsole", "HtmlToPdfConsole\HtmlToPdfConsole.csproj", "{776C0D56-5BD9-43AA-8FB1-E8599C7A23A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Converter", "Converter\Converter.csproj", "{A3AA4807-EFA6-4800-8EDA-0B16BD14125F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Converter", "Converter\Converter.csproj", "{A3AA4807-EFA6-4800-8EDA-0B16BD14125F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService1", "WorkerService1\WorkerService1.csproj", "{11786AE1-0402-4684-ABE4-75D0AF22ECC1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConverterWorker", "ConverterWorker\ConverterWorker.csproj", "{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBusRabbitMQ", "EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{7385356E-8301-4AEE-A427-1D910D960455}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{A3AA4807-EFA6-4800-8EDA-0B16BD14125F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3AA4807-EFA6-4800-8EDA-0B16BD14125F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3AA4807-EFA6-4800-8EDA-0B16BD14125F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11786AE1-0402-4684-ABE4-75D0AF22ECC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11786AE1-0402-4684-ABE4-75D0AF22ECC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11786AE1-0402-4684-ABE4-75D0AF22ECC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11786AE1-0402-4684-ABE4-75D0AF22ECC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7385356E-8301-4AEE-A427-1D910D960455}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7385356E-8301-4AEE-A427-1D910D960455}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7385356E-8301-4AEE-A427-1D910D960455}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7385356E-8301-4AEE-A427-1D910D960455}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
