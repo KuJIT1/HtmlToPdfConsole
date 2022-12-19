@@ -14,7 +14,7 @@
     /// Поддерживает постоянные соедиение, пытается переоткрыть его при ошибках соединения
     /// Копипаст из примера от Майкрософт
     /// </summary>
-    public class DefaultRabbitMQPersistentConnection : IRabbitMQPersistentConnection
+    public class DefaultRabbitMQPersistentConnection : IRabbitMQPersistentConnection, IDisposable
     {
         private readonly IConnectionFactory connectionFactory;
         private readonly ILogger<DefaultRabbitMQPersistentConnection> logger;
@@ -34,7 +34,7 @@
             this.retryCount = retryCount;
         }
 
-        public bool IsConnected => !this.disposedValue && this.isConnectionOpen(this.connection);
+        private bool isConnected => !this.disposedValue && IsConnectionOpen(this.connection);
 
         /// <summary>
         /// 
@@ -46,7 +46,7 @@
         /// или вообще ещё не открывалось. Поэтому тут добавляю TryConnect для случая, когда соединение пересоздаётся
         public IModel CreateModel()
         {
-            if (!this.IsConnected && !this.TryConnect())
+            if (!this.isConnected && !this.tryConnect())
             {
                 throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
             }
@@ -63,11 +63,11 @@
         /// Кажется логичным добавить такие проверки на IsConnected и volatile на this.connection для надёжности.
         /// Обработать случай, если TryConnect вызовут несколько раз. В том числе и по ошибке
         /// TODO: PolicyRegistry
-        public bool TryConnect()
+        private bool tryConnect()
         {
             this.logger.LogInformation("RabbitMQ Client is trying to connect");
 
-            if (this.IsConnected)
+            if (this.isConnected)
             {
                 this.logger.LogInformation("RabbitMQ Client is still connected");
                 return true;
@@ -75,14 +75,14 @@
 
             lock (this.syncRoot)
             {
-                if (this.IsConnected)
+                if (this.isConnected)
                 {
                     this.logger.LogInformation("RabbitMQ Client is still connected");
                     return true;
                 }
 
                 var newConnection = this.tryCreateConnection();
-                if (this.isConnectionOpen(newConnection))
+                if (IsConnectionOpen(newConnection))
                 {
                     this.clearConnection(this.connection);
                     this.connection = newConnection;
@@ -97,7 +97,7 @@
                 }
                 else
                 {
-                    this.logger.LogCritical("FATAL ERROR: RabbitMQ connections could not be created and opened");
+                    this.logger.LogCritical("FATAL ERROR: {message}", "RabbitMQ connections could not be created and opened");
 
                     return false;
                 }
@@ -113,9 +113,10 @@
 
             this.disposedValue = true;
             this.clearConnection(this.connection);
+            //GC.SuppressFinalize(this); TODO: Узнать, как правильно его использовать
         }
 
-        private bool isConnectionOpen(IConnection? connection) => connection is { IsOpen: true };
+        private static bool IsConnectionOpen(IConnection? connection) => connection is { IsOpen: true };
 
         private IConnection? tryCreateConnection()
         {
@@ -126,6 +127,7 @@
                                   {
                                       return TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
                                   },
+                                  // TODO: деструктуризация для delegateResult.Exception ?
                                   onRetry: (delegateResult, time) =>
                                   {
                                       this.logger.LogWarning(
@@ -152,26 +154,27 @@
 
             try
             {
-                connection.ConnectionShutdown -= OnConnectionShutdown;
-                connection.CallbackException -= OnCallbackException;
-                connection.ConnectionBlocked -= OnConnectionBlocked;
+                connection.ConnectionShutdown -= onConnectionShutdown;
+                connection.CallbackException -= onCallbackException;
+                connection.ConnectionBlocked -= onConnectionBlocked;
 
+                connection.Close(); // TODO: убедиться, что нужно закрывать соединение перед освобождением
                 connection.Dispose();
             }
             catch(IOException ex) // TODO: Узнать почему эта ошибка может возникнуть
             {
-                this.logger.LogCritical(ex.ToString());
+                this.logger.LogCritical("FATAL ERROR: {message}", ex.ToString());
             }
         }
 
         private void subscribeConnection(IConnection connection)
         {
-            connection.ConnectionShutdown += OnConnectionShutdown;
-            connection.CallbackException += OnCallbackException;
-            connection.ConnectionBlocked += OnConnectionBlocked;
+            connection.ConnectionShutdown += onConnectionShutdown;
+            connection.CallbackException += onCallbackException;
+            connection.ConnectionBlocked += onConnectionBlocked;
         }
 
-        private void OnConnectionBlocked(object? sender, ConnectionBlockedEventArgs e)
+        private void onConnectionBlocked(object? sender, ConnectionBlockedEventArgs e)
         {
             if (this.disposedValue)
             {
@@ -179,10 +182,10 @@
             }
 
             this.logger.LogWarning("A RabbitMQ connection is shutdown. Trying to re-connect...");
-            TryConnect();
+            tryConnect();
         }
 
-        private void OnCallbackException(object? sender, CallbackExceptionEventArgs e)
+        private void onCallbackException(object? sender, CallbackExceptionEventArgs e)
         {
             if (this.disposedValue)
             {
@@ -190,10 +193,10 @@
             }
 
             this.logger.LogWarning("A RabbitMQ connection throw exception. Trying to re-connect..."); ;
-            TryConnect();
+            tryConnect();
         }
 
-        private void OnConnectionShutdown(object? sender, ShutdownEventArgs e)
+        private void onConnectionShutdown(object? sender, ShutdownEventArgs e)
         {
             if (this.disposedValue)
             {
@@ -201,7 +204,7 @@
             }
 
             this.logger.LogWarning("A RabbitMQ connection is on shutdown. Trying to re-connect...");
-            TryConnect();
+            tryConnect();
         }
     }
 }

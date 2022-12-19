@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService1", "WorkerSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConverterWorker", "ConverterWorker\ConverterWorker.csproj", "{6710DC52-EBC3-4FA4-BB80-352C4F8B2039}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBusRabbitMQ", "EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{7385356E-8301-4AEE-A427-1D910D960455}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBusRabbitMQ", "EventBusRabbitMQ\EventBusRabbitMQ.csproj", "{7385356E-8301-4AEE-A427-1D910D960455}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus", "EventBus\EventBus.csproj", "{E2221B5F-4DC2-40FC-9672-2326B41CE53B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{7385356E-8301-4AEE-A427-1D910D960455}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7385356E-8301-4AEE-A427-1D910D960455}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7385356E-8301-4AEE-A427-1D910D960455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2221B5F-4DC2-40FC-9672-2326B41CE53B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2221B5F-4DC2-40FC-9672-2326B41CE53B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2221B5F-4DC2-40FC-9672-2326B41CE53B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2221B5F-4DC2-40FC-9672-2326B41CE53B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
