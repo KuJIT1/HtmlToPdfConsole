@@ -6,7 +6,11 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    using EventBus.Events;
+
     public interface IEventBus
     {
+        void Publish(IntegrationEvent @event);
+
     }
 }

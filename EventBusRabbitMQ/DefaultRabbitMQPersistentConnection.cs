@@ -82,7 +82,7 @@
                 }
 
                 var newConnection = this.tryCreateConnection();
-                if (IsConnectionOpen(newConnection))
+                if (newConnection is not null)
                 {
                     this.clearConnection(this.connection);
                     this.connection = newConnection;
@@ -92,16 +92,15 @@
                         "RabbitMQ Client acquired a persistent connection to '{HostName}' and " +
                         "is subscribed to failure events",
                         this.connection!.Endpoint.HostName);
-
-                    return true;
                 }
                 else
                 {
                     this.logger.LogCritical("FATAL ERROR: {message}", "RabbitMQ connections could not be created and opened");
-
                     return false;
                 }
             }
+
+            return this.isConnected || this.tryConnect(); // На случай, если соединение создалось нормально, но умерло до подписок
         }
 
         public void Dispose()
