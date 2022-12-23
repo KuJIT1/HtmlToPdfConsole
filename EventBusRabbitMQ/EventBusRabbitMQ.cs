@@ -233,6 +233,7 @@
                         PropertyNameCaseInsensitive = true 
                     });
 
+                await Task.Yield(); // TODO: как это работает?
                 await (Task)handlerType.GetMethod(nameof(IIntegrationEventHandler<IntegrationEvent>.Handle))!
                     .Invoke(handler, new object[] { integrationEvent })!;
             }

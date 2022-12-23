@@ -6,7 +6,7 @@
 
     using PuppeteerSharp;
 
-    public class PuppeteerConverter: IDisposable
+    public class PuppeteerConverter: IDisposable, IHtmlToPdfConverter
     {
         private readonly IBrowser _browser;
         private bool _disposedValue;
@@ -26,6 +26,23 @@
             }
 
             return new PuppeteerConverter(browser);
+        }
+
+        public PuppeteerConverter()
+        {
+            using var browserFetcher = new BrowserFetcher();
+            IBrowser browser;
+            try
+            {
+                browserFetcher.DownloadAsync().Wait();
+                browser = Puppeteer.LaunchAsync(new LaunchOptions { Headless = true }).GetAwaiter().GetResult();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            _browser = browser ?? throw new ArgumentNullException(nameof(browser));
         }
 
         private PuppeteerConverter(IBrowser browser)
@@ -65,5 +82,10 @@
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+    }
+
+    public interface IHtmlToPdfConverter
+    {
+        Task<string> ConvertAsync(string htmlFilePath);
     }
 }
